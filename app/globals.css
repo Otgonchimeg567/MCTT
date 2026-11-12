@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/* Design tokens — Figma "MCTT — Вэб сайтын загвар"
+   `static` emits every token as a CSS variable so /styleguide can read them live. */
+@theme static {
+  --color-ink: #14142b;
+  --color-body: #2e2e44;
+  --color-muted: #5b5b72;
+  --color-faint: #a09db0;
+
+  --color-brand: #3b2d8f;
+  --color-brand-blue: #1a7fc1;
+  --color-brand-violet: #6a4fd1;
+  --color-navy: #16163a;
+
+  --color-cream: #faf5f3;
+  --color-sand: #f6efec;
+  --color-line: #efe4df;
+  --color-line-soft: #f3ece8;
+  --color-track: #ede6e2;
+
+  --color-lilac: #eeeafb;
+  --color-lavender: #d9d5f5;
+  --color-lavender-muted: #b9b4e8;
+  --color-mint: #e3f2e9;
+  --color-leaf: #287a4c; /* 5.3:1 on white, 4.5:1 on mint */
+
+  --font-sans: var(--font-golos), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+@utility bg-brand-gradient {
+  background-image: linear-gradient(165deg, var(--color-brand-blue) 0%, var(--color-brand) 100%);
+}
+
+@utility bg-brand-gradient-diagonal {
+  background-image: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand) 100%);
+}
+
+@utility bg-night-gradient {
+  background-image: linear-gradient(165deg, var(--color-navy) 8.5%, var(--color-brand) 91.5%);
+}
+
+@utility bg-contact-gradient {
+  background-image: linear-gradient(173deg, var(--color-navy) 8.5%, #2a2370 91.5%);
+}
+
+@utility text-brand-gradient {
+  background-image: linear-gradient(156deg, var(--color-brand-blue) 0%, var(--color-brand-violet) 100%);
+  background-clip: text;
+  color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+}
