@@ -10,18 +10,19 @@ type ProductRow = {
   purity_percent: number;
   usage: string;
   description: string;
-  highlighted: number;
+  highlighted: boolean;
 };
 
-export function getProducts(): Product[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT id, grade, name, purity_label, purity_percent, usage, description, highlighted
-       FROM products ORDER BY sort_order, id`,
-    )
-    .all() as ProductRow[];
+export async function getProducts(): Promise<Product[]> {
+  const { data, error } = await getDb()
+    .from("products")
+    .select("id, grade, name, purity_label, purity_percent, usage, description, highlighted")
+    .order("sort_order")
+    .order("id")
+    .returns<ProductRow[]>();
+  if (error) throw error;
 
-  return rows.map((r) => ({
+  return data.map((r) => ({
     id: r.id,
     grade: r.grade,
     name: r.name,
@@ -29,10 +30,12 @@ export function getProducts(): Product[] {
     purityPercent: r.purity_percent,
     usage: r.usage,
     description: r.description,
-    highlighted: r.highlighted === 1,
+    highlighted: r.highlighted,
   }));
 }
 
-export function productExists(id: string): boolean {
-  return getDb().prepare("SELECT 1 FROM products WHERE id = ?").get(id) !== undefined;
+export async function productExists(id: string): Promise<boolean> {
+  const { count, error } = await getDb().from("products").select("id", { count: "exact", head: true }).eq("id", id);
+  if (error) throw error;
+  return (count ?? 0) > 0;
 }

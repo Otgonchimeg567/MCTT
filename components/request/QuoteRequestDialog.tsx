@@ -4,25 +4,31 @@ import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/types";
 import { QuoteRequestForm } from "./QuoteRequestForm";
 
-export const REQUEST_HASH = "#request";
+import { isRequestHash } from "@/lib/request";
 
 /**
- * Opens whenever the URL hash becomes #request, so any plain link
- * (<a href="#request">) on the page can open it — no shared client state needed.
+ * Opens whenever the URL hash becomes #request (optionally #request?product=<id>), so any plain link
+ * on the page can open it — no shared client state needed.
  */
 export function QuoteRequestDialog({ products }: { products: Product[] }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [formKey, setFormKey] = useState(0);
+  const [productId, setProductId] = useState<string | undefined>();
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
 
     const sync = () => {
-      if (window.location.hash === REQUEST_HASH && !dialog.open) dialog.showModal();
+      const { hash } = window.location;
+      if (!isRequestHash(hash) || dialog.open) return;
+      const id = new URLSearchParams(hash.split("?")[1] ?? "").get("product") ?? undefined;
+      setProductId(id);
+      setFormKey((k) => k + 1); // remount so the preselected product applies
+      dialog.showModal();
     };
     const clearHash = () => {
-      if (window.location.hash === REQUEST_HASH) {
+      if (isRequestHash(window.location.hash)) {
         history.replaceState(null, "", window.location.pathname + window.location.search);
       }
       setFormKey((k) => k + 1); // fresh form next time
@@ -63,7 +69,7 @@ export function QuoteRequestDialog({ products }: { products: Product[] }) {
             ✕
           </button>
         </div>
-        <QuoteRequestForm key={formKey} products={products} onDone={close} />
+        <QuoteRequestForm key={formKey} products={products} initialProductId={productId} onDone={close} />
       </div>
     </dialog>
   );

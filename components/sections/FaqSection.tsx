@@ -7,9 +7,10 @@ import { ChatPreview } from "@/components/cards/ChatPreview";
 
 export function FaqSection() {
   return (
-    <section id="suppliers" className="scroll-mt-6 py-16 sm:py-24">
-      <Container className="grid items-center gap-10 lg:grid-cols-2">
-        <div className="flex flex-col">
+    <section id="suppliers" className="scroll-mt-6 border-t border-line py-16 sm:py-24">
+      {/* Narrow text column beside the wider chat so the short copy sits next to what it introduces (proximity). */}
+      <Container className="grid items-center gap-10 lg:grid-cols-[5fr_7fr] lg:gap-16">
+        <div data-reveal className="flex flex-col">
           <SectionTag>{faq.tag}</SectionTag>
           <Heading level="h2" className="pt-3.5">
             {faq.title}

@@ -7,6 +7,7 @@ import { FeatureCard } from "@/components/cards/FeatureCard";
 import { PreviewPanel } from "@/components/cards/preview/PreviewPanel";
 import { StatProgress } from "@/components/cards/preview/StatProgress";
 import { InfoRows } from "@/components/cards/preview/InfoRows";
+import { requestHref } from "@/lib/request";
 
 function GradePreview({ product }: { product: Product }) {
   return (
@@ -22,23 +23,28 @@ function GradePreview({ product }: { product: Product }) {
 /** Product cards come from the database (see lib/server/products.ts). */
 export function ProductsSection({ products }: { products: Product[] }) {
   return (
-    <section id="products" className="scroll-mt-6 pb-16 sm:pb-24">
+    <section id="products" className="scroll-mt-6 border-t border-line py-16 sm:py-24">
       <Container>
-        <SectionHeader tag={copy.tag} title={copy.title} description={copy.description} />
+        <SectionHeader index={3} tag={copy.tag} title={copy.title} description={copy.description} />
 
-        <div className="grid gap-6 pt-10 md:grid-cols-2 lg:grid-cols-3">
+        <div data-reveal-stagger className="grid gap-6 pt-10 md:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
             <FeatureCard
               key={product.id}
               title={product.name}
               description={product.description}
-              action={{ label: "Үнийн санал", href: "#request" }}
+              // Opens the request form with this grade already chosen (connects card → request).
+              action={{ label: "Үнийн санал", href: requestHref(product.id) }}
               previewTone={product.highlighted ? "dark" : "light"}
+              badge={product.highlighted ? "Онцлох" : undefined}
+              actionVariant={product.highlighted ? "primary" : "outline"}
               preview={<GradePreview product={product} />}
+              featured={product.highlighted}
             />
           ))}
 
           <FeatureCard
+            variant="action"
             title="Худалдан авах хүсэлт"
             description="Монгол, англи, хятад хэлээр хүсэлтээ илгээх боломжтой."
             action={{ label: "Хүсэлт илгээх", href: "#request" }}

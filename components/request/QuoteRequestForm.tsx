@@ -8,7 +8,18 @@ import { Input, Select, Textarea } from "@/components/ui/Input";
 
 type Status = { kind: "idle" } | { kind: "submitting" } | { kind: "success" } | { kind: "error"; message: string };
 
-export function QuoteRequestForm({ products, onDone }: { products: Product[]; onDone: () => void }) {
+export function QuoteRequestForm({
+  products,
+  initialProductId,
+  onDone,
+}: {
+  products: Product[];
+  /** Product to preselect, e.g. when opened from that product's card. */
+  initialProductId?: string;
+  onDone: () => void;
+}) {
+  const defaultProductId =
+    products.find((p) => p.id === initialProductId)?.id ?? products.find((p) => p.highlighted)?.id ?? products[0]?.id;
   const [requestType, setRequestType] = useState<"buy" | "supply">("buy");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
@@ -97,7 +108,7 @@ export function QuoteRequestForm({ products, onDone }: { products: Product[]; on
 
       {requestType === "buy" && (
         <Field label="Бүтээгдэхүүн" name="productId" error={errors.productId}>
-          <Select name="productId" defaultValue={products.find((p) => p.highlighted)?.id ?? products[0]?.id} {...a11y("productId")}>
+          <Select name="productId" defaultValue={defaultProductId} {...a11y("productId")}>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.grade} — {p.purityLabel} CaF₂

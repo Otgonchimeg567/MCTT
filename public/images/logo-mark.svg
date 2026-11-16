@@ -1,0 +1,33 @@
+<svg width="120" height="104" viewBox="0 0 120 104" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- MCTT mark: the original triangle cut into four facets (same split as logo.png),
+       coloured with the crystal palette so it sits on dark backgrounds without a white plate.
+       The cuts are transparent (mask), so the page background shows through like the white lines in the original. -->
+  <defs>
+    <linearGradient id="top" x1="60" y1="2" x2="60" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5BB8F0"/>
+      <stop offset="1" stop-color="#1A6FB3"/>
+    </linearGradient>
+    <linearGradient id="left" x1="2" y1="102" x2="60" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B2D8F"/>
+      <stop offset="1" stop-color="#7B63E0"/>
+    </linearGradient>
+    <linearGradient id="right" x1="118" y1="102" x2="60" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A5FA8"/>
+      <stop offset="1" stop-color="#2E9BD9"/>
+    </linearGradient>
+    <linearGradient id="center" x1="60" y1="52" x2="60" y2="102" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B9A8F5"/>
+      <stop offset="1" stop-color="#6A4FD1"/>
+    </linearGradient>
+    <mask id="cuts" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="104">
+      <rect width="120" height="104" fill="white"/>
+      <path d="M31 52H89L60 102Z" stroke="black" stroke-width="4" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  <g mask="url(#cuts)">
+    <path d="M60 2L31 52H89Z" fill="url(#top)"/>
+    <path d="M31 52L2 102H60Z" fill="url(#left)"/>
+    <path d="M89 52L60 102H118Z" fill="url(#right)"/>
+    <path d="M31 52H89L60 102Z" fill="url(#center)"/>
+  </g>
+</svg>

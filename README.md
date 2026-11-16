@@ -1,21 +1,21 @@
 # Эм Си Ти Ти ХХК — вэб сайт
 
-Next.js 15 (App Router) · Tailwind CSS v4 · Node.js API · SQLite
+Next.js 15 (App Router) · Tailwind CSS v4 · Node.js API · Supabase (Postgres)
 
 ```
-Frontend (Next.js + Tailwind)  ──  Node.js (API routes)  ──  Database (SQLite)
-components/, app/page.tsx          app/api/*                 lib/server/db.ts → data/mctt.db
+Frontend (Next.js + Tailwind)  ──  Node.js (API routes)  ──  Database (Supabase)
+components/, app/page.tsx          app/api/*                 lib/server/db.ts → Supabase "mctt" төсөл
 ```
 
 ## Ажиллуулах
 
 ```bash
 npm install
-cp .env.example .env.local   # ADMIN_PASSWORD-оо солино
+cp .env.example .env.local   # ADMIN_PASSWORD, SUPABASE_URL, SUPABASE_SECRET_KEY-ээ бичнэ
 npm run dev                  # http://localhost:3000
 ```
 
-Node.js **22.13+** шаардлагатай (built-in `node:sqlite` ашигладаг). Database файл `data/mctt.db` анх ажиллахад автоматаар үүсч, ФФ-95 / ФФ-97 бүтээгдэхүүнээр дүүрнэ.
+Өгөгдөл Supabase-ийн `products`, `quote_requests` хүснэгтэд хадгалагдана. Хоёр хүснэгтэд RLS асаалттай, policy байхгүй — тиймээс зөвхөн сервер талын `SUPABASE_SECRET_KEY` уншиж, бичиж чадна. Энэ түлхүүрийг `NEXT_PUBLIC_` угтвартай болгож хэзээ ч бүү ил гарга.
 
 ## API
 
@@ -24,9 +24,24 @@ Node.js **22.13+** шаардлагатай (built-in `node:sqlite` ашигла
 | `GET` | `/api/products` | Бүтээгдэхүүний жагсаалт |
 | `POST` | `/api/requests` | Худалдан авах / хүдэр нийлүүлэх хүсэлт хадгалах |
 
-## Админ
+## Ажлын систем (`/admin`)
 
-`/admin/requests` — ирсэн хүсэлтүүд. `.env.local` дахь `ADMIN_USER` / `ADMIN_PASSWORD`-аар нэвтэрнэ.
+Ажилтны өдөр тутмын ажлын бүртгэл, даалгавар, файлыг нэг дор төвлөрүүлнэ. `/admin/login`-оор Supabase Auth (имэйл + нууц үг) ашиглан нэвтэрнэ.
+
+| Хуудас | Админ | Менежер | Ажилтан |
+|---|---|---|---|
+| Хяналтын самбар | бүх байгууллага | өөрийн хэлтэс | өөрийн ажил |
+| Ажилтнууд | нэмэх, засах, идэвхгүй болгох | хэлтсээ харах | — |
+| Ажлын бүртгэл | бүгдийг харах, засах | хэлтсийг харах | өөрийнхөө бүртгэл |
+| Даалгавар | бүгд | хэлтэст үүсгэх, оноох | оноогдсоноо харах, төлөв солих |
+| Файл / хавтас | бүгд | хэлтсийн файл | өөрийн, даалгавартай холбогдсон |
+| Үнийн хүсэлт | вэбээс ирсэн хүсэлт | — | — |
+
+- Эрхийг зөвхөн `profiles.role`-оос уншина. Бүх шүүлтийг Postgres RLS хийнэ: `supabase/migrations/`.
+- Файл нь Storage-ийн хаалттай `work-files` bucket-д `<user id>/<uuid>-<нэр>` замаар хадгалагдана. Мета өгөгдөл, хавтас нь `files`, `folders` хүснэгтэд байна. Татахад 60 секундын signed URL үүснэ.
+- Хэлтсийг **Тохиргоо**-оос нэмнэ. Менежер зөвхөн өөрийн хэлтсийн ажилтнуудыг харна.
+
+**Анхны админ:** `.env.local`-д `ADMIN_USER` (имэйл) болон `ADMIN_PASSWORD`-ийг бичээд `npm run bootstrap-admin` ажиллуулна. Дараагийн ажилтнуудыг админ **Ажилтнууд** хуудаснаас нэмнэ.
 
 ## Бүтэц
 
@@ -51,4 +66,4 @@ Node.js **22.13+** шаардлагатай (built-in `node:sqlite` ашигла
 
 ## Production-д байршуулахад
 
-SQLite нь нэг файл тул Vercel гэх мэт serverless орчинд хадгалагдахгүй. Байнгын диск бүхий VPS ашиглах, эсвэл `lib/server/` доторх query-нүүдийг PostgreSQL (жишээ нь Supabase) руу шилжүүлнэ.
+Vercel зэрэг орчинд `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `ADMIN_USER`, `ADMIN_PASSWORD`-ийг environment variable болгож тохируулна. Хуучин `data/mctt.db` (SQLite) файлыг ашиглахаа больсон.

@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { Golos_Text, Montserrat } from "next/font/google";
+// Self-hosted variable fonts. Their index.css carries every subset, incl. cyrillic-ext for the Mongolian letters
+// Ө ө Ү ү. next/font/google can't build against the current Google Fonts responses on this Next.js version
+// (font URLs no longer end in .woff2), so the files ship from node_modules — no network needed at build time.
+import "@fontsource-variable/golos-text";
+import "@fontsource-variable/montserrat";
 import "./globals.css";
-
-const golos = Golos_Text({
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-golos",
-});
-
-const montserrat = Montserrat({
-  subsets: ["latin", "cyrillic"],
-  weight: ["700", "800"],
-  variable: "--font-montserrat",
-});
 
 export const metadata: Metadata = {
   title: "Эм Си Ти Ти ХХК — Флотацийн жоншны баяжмал",
@@ -22,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="mn" className={`${golos.variable} ${montserrat.variable}`}>
+    <html lang="mn">
       <body className="font-sans antialiased">{children}</body>
     </html>
   );

@@ -45,7 +45,7 @@ export function SgNav() {
       </nav>
 
       {/* Mobile: horizontal chip strip under the header */}
-      <nav aria-label="Styleguide-ийн бүлгүүд" className="sticky top-[64px] z-10 -mx-4 overflow-x-auto border-b border-line bg-cream/95 px-4 py-2.5 backdrop-blur lg:hidden">
+      <nav aria-label="Styleguide-ийн бүлгүүд" className="sticky top-[64px] z-10 -mx-6 overflow-x-auto border-b border-line bg-cream/95 px-6 py-2.5 backdrop-blur lg:hidden">
         <ol className="flex w-max gap-1.5">
           {sgNav.map(({ id, label }) => (
             <li key={id}>

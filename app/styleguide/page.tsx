@@ -7,13 +7,27 @@ import {
   glyphs,
   gradients,
   layoutTokens,
+  letterSpacings,
+  lineHeights,
+  motions,
+  overlays,
   pageSections,
   principles,
   radii,
+  semanticRoles,
   spacing,
   typeScale,
 } from "@/lib/styleguide";
-import { SgSection, SgSub, SgDemo, Code, PropRow } from "@/components/styleguide/Sg";
+import { getProducts } from "@/lib/server/products";
+import { pageGutter } from "@/components/layout/Container";
+import { Footer } from "@/components/layout/Footer";
+import { AboutSection } from "@/components/sections/AboutSection";
+import { ProductionSection } from "@/components/sections/ProductionSection";
+import { ProductsSection } from "@/components/sections/ProductsSection";
+import { EnvironmentSection } from "@/components/sections/EnvironmentSection";
+import { FaqSection } from "@/components/sections/FaqSection";
+import { ContactSection } from "@/components/sections/ContactSection";
+import { SgSection, SgSub, SgDemo, Code, PropRow, LiveSection } from "@/components/styleguide/Sg";
 import { SgNav } from "@/components/styleguide/SgNav";
 import { TokenSwatch } from "@/components/styleguide/TokenSwatch";
 import { LiveSpec } from "@/components/styleguide/LiveSpec";
@@ -26,6 +40,7 @@ import { Heading } from "@/components/ui/Heading";
 import { Field, fieldErrorId } from "@/components/ui/Field";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { FeatureCard } from "@/components/cards/FeatureCard";
+import { FeatureCarousel } from "@/components/cards/FeatureCarousel";
 import { PreviewPanel } from "@/components/cards/preview/PreviewPanel";
 import { StepList } from "@/components/cards/preview/StepList";
 import { StatProgress } from "@/components/cards/preview/StatProgress";
@@ -42,11 +57,16 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function StyleguidePage() {
+// Section 11 renders the live products section, which reads the database on each request.
+export const dynamic = "force-dynamic";
+
+export default async function StyleguidePage() {
+  const products = await getProducts();
+
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-line bg-cream/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 lg:px-8">
+        <div className={`flex h-16 items-center justify-between ${pageGutter}`}>
           <div className="flex items-center gap-4">
             <Link href="/" aria-label="Нүүр хуудас">
               <Image src="/images/logo.png" alt="" width={40} height={30} className="object-cover" />
@@ -62,7 +82,7 @@ export default function StyleguidePage() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1400px] gap-10 px-4 pb-32 lg:grid-cols-[200px_minmax(0,1fr)] lg:px-8">
+      <div className={`grid gap-10 pb-32 lg:grid-cols-[220px_minmax(0,1fr)] xl:gap-20 ${pageGutter}`}>
         <SgNav />
 
         <main className="min-w-0">
@@ -79,7 +99,7 @@ export default function StyleguidePage() {
 
           {/* 01 */}
           <SgSection id="principles" num={1} title="Зарчим">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {principles.map((p) => (
                 <div key={p.title} className="rounded-[20px] bg-sand p-5">
                   <h3 className="font-semibold text-ink">{p.title}</h3>
@@ -98,21 +118,15 @@ export default function StyleguidePage() {
                 { bg: "bg-night-gradient", label: "Бараан дээр · bg-night-gradient", dark: true },
               ].map((b) => (
                 <div key={b.label} className={`flex aspect-[4/3] flex-col items-center justify-center gap-4 rounded-[20px] p-6 ${b.bg}`}>
-                  {b.dark ? (
-                    <span className="flex items-center gap-2.5 rounded-full bg-white px-4 py-2">
-                      <Logo size="md" />
-                    </span>
-                  ) : (
-                    <Logo size="lg" muted={b.muted} />
-                  )}
+                  {b.dark ? <Logo size="lg" tone="dark" /> : <Logo size="lg" muted={b.muted} />}
                   <span className={`font-mono text-[11px] ${b.dark ? "text-lavender" : "text-muted"}`}>{b.label}</span>
                 </div>
               ))}
             </div>
             <p className="text-sm text-muted">
-              <Code>public/images/logo.png</Code> · <Code>components/ui/Logo.tsx</Code>. Хэмжээ: <Code>lg</Code> 46×34 (Navbar),{" "}
-              <Code>md</Code> 36×27 (Footer). Нэр <Code>text-ink</Code>, «ХХК» үргэлж <Code>text-brand</Code>. Лого нь бараан дэвсгэрт
-              зориулсан хувилбаргүй тул бараан дээр цагаан pill дотор байрлуулна.
+              <Code>public/images/logo.png</Code> · <Code>components/ui/Logo.tsx</Code>. Хэмжээ: <Code>lg</Code> 62×46, утсан дээр 54×40 (Navbar),{" "}
+              <Code>md</Code> 46×34 (Footer). Нэр <Code>text-ink</Code>, «ХХК» үргэлж <Code>text-brand</Code>. Бараан дээр{" "}
+              <Code>tone=&quot;dark&quot;</Code>: тэмдэг цагаан хавтан дээр, нэр цагаан, «ХХК» lavender.
             </p>
           </SgSection>
 
@@ -152,15 +166,55 @@ export default function StyleguidePage() {
               </div>
             </SgSub>
 
+            <SgSub
+              title="Семантик үүрэг · гадаргуугаар"
+              description={
+                <>
+                  Нэг брэндтэй тул палитр солигддоггүй; харин цайвар ба бараан гадаргуу дээр үүрэг бүр өөр токен авна. Компонент нь{" "}
+                  <Code>tone=&quot;dark&quot;</Code> prop-оор баруун баганыг сонгоно.
+                </>
+              }
+            >
+              <div className="overflow-x-auto rounded-[20px] border border-line bg-white">
+                <table className="w-full min-w-[560px] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-line">
+                      <th scope="col" className="px-5 py-3.5 font-semibold text-ink">Үүрэг</th>
+                      <th scope="col" className="px-5 py-3.5 font-semibold text-ink">Цайвар дэвсгэр</th>
+                      <th scope="col" className="bg-navy px-5 py-3.5 font-semibold text-white">Бараан дэвсгэр</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {semanticRoles.map((r) => (
+                      <tr key={r.role} className="border-b border-line-soft last:border-b-0">
+                        <th scope="row" className="px-5 py-3 font-medium text-ink">{r.role}</th>
+                        <td className="px-5 py-3">
+                          <span className="flex items-center gap-3">
+                            <span className="size-6 shrink-0 rounded-full border border-black/10" style={{ background: r.light.css }} />
+                            <code className="font-mono text-xs text-muted">{r.light.label}</code>
+                          </span>
+                        </td>
+                        <td className="bg-navy px-5 py-3">
+                          <span className="flex items-center gap-3">
+                            <span className="size-6 shrink-0 rounded-full border border-white/20" style={{ background: r.dark.css }} />
+                            <code className="font-mono text-xs text-lavender">{r.dark.label}</code>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </SgSub>
+
             <SgSub title="Харьцааны дүрэм" description="Contrast-ийг цагаан дэвсгэр дээр тооцсон (WCAG). Энгийн бичвэрт 4.5:1-ээс дээш шаардлагатай.">
               <div className="grid gap-3 text-sm sm:grid-cols-2">
                 <p className="rounded-2xl bg-mint/60 p-4 text-ink">
-                  ✓ <b>ink, body, muted, brand, leaf</b> (≥ 4.5:1): ямар ч хэмжээний бичвэрт ашиглаж болно. Leaf нь mint дэвсгэр
-                  дээр ч 4.5:1 хүрнэ.
+                  ✓ <b>ink, body, muted, brand, brand-blue, leaf</b> (≥ 4.5:1): ямар ч хэмжээний бичвэрт ашиглаж болно. Цагаан
+                  бичвэр brand gradient-ийн аль ч хэсэг дээр 4.5:1-ээс дээш. Leaf нь mint дэвсгэр дээр ч 4.5:1 хүрнэ.
                 </p>
                 <p className="rounded-2xl bg-sand p-4 text-ink">
-                  ⚠ <b>brand-blue</b> (≈ 4.3:1): зөвхөн 18px+ эсвэл тод бичвэрт. <b>faint, lavender</b>: зөвхөн placeholder,
-                  чимэглэл эсвэл бараан дэвсгэр дээр.
+                  ⚠ <b>faint, lavender</b>: зөвхөн placeholder, чимэглэл эсвэл бараан дэвсгэр дээр.
                 </p>
               </div>
             </SgSub>
@@ -187,7 +241,7 @@ export default function StyleguidePage() {
               </div>
             </SgSub>
 
-            <SgSub title="Хэмжээний шатлал" description="Figma-ийн тогтмол px утгууд. Утсан дээр 48 → 32, 56 → 36 болж багасна.">
+            <SgSub title="Хэмжээний шатлал" description="Figma-ийн тогтмол px утгууд. Section гарчиг бүгд нэг хэмжээтэй (40px, утсан дээр 32px).">
               <div className="flex flex-col gap-5 overflow-hidden rounded-[20px] border border-line bg-white p-5 sm:p-6">
                 {typeScale.map((t) => (
                   <div key={t.px} className="grid gap-1 border-b border-line-soft pb-4 last:border-b-0 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-6">
@@ -206,10 +260,8 @@ export default function StyleguidePage() {
                 <LiveSpec label="<SectionTag>">
                   <SectionTag>ҮЙЛДВЭРЛЭЛ</SectionTag>
                 </LiveSpec>
-                <LiveSpec label={'<Heading level="h1"> · Hero'}>
-                  <Heading level="h1" as="p">
-                    Эм Си Ти Ти Жонш
-                  </Heading>
+                <LiveSpec label="Hero хаалга · h1 нь sr-only">
+                  <p className="font-display text-[30px] leading-tight font-extrabold text-ink sm:text-[40px]">Хүдэр нийлүүлэх</p>
                 </LiveSpec>
                 <LiveSpec label={'<Heading level="h2"> · SectionHeader'}>
                   <Heading level="h2" as="p">
@@ -237,6 +289,37 @@ export default function StyleguidePage() {
                 <LiveSpec label="Panel label">
                   <p className="text-[11px] leading-[16.5px] font-bold tracking-[0.88px] text-muted">ТЕХНОЛОГИЙН ДАМЖЛАГА</p>
                 </LiveSpec>
+              </div>
+            </SgSub>
+
+            <SgSub title="Мөрийн өндөр">
+              <div className="grid gap-4 md:grid-cols-2">
+                {lineHeights.map((l) => (
+                  <div key={l.value} className="rounded-[20px] border border-line bg-white p-5">
+                    <p className="flex items-baseline gap-3">
+                      <code className="font-mono text-xs font-semibold text-brand">{l.cls}</code>
+                      <span className="text-xs text-muted">{l.use}</span>
+                    </p>
+                    <p className={`max-w-[460px] pt-3 text-[15px] text-body ${l.cls}`}>
+                      Өөрийн уурхай болон жижиг олборлогчдоос авсан хүдрийг Сүмбэр сум дахь үйлдвэртээ флотацийн аргаар баяжуулдаг.
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </SgSub>
+
+            <SgSub title="Үсэг хоорондын зай">
+              <div className="rounded-[20px] border border-line bg-white px-5">
+                {letterSpacings.map((l) => (
+                  <div
+                    key={l.value}
+                    className="grid items-center gap-2 border-b border-line-soft py-4 last:border-b-0 sm:grid-cols-[140px_200px_minmax(0,1fr)] sm:gap-6"
+                  >
+                    <code className="font-mono text-xs font-semibold text-brand">{l.value}</code>
+                    <span className="text-xs text-muted">{l.use}</span>
+                    <span className={`text-ink ${l.cls}`}>{l.sample}</span>
+                  </div>
+                ))}
               </div>
             </SgSub>
           </SgSection>
@@ -293,8 +376,23 @@ export default function StyleguidePage() {
                 <p className="font-semibold text-ink">Мөрийн тусгаарлагч</p>
                 <div className="mt-2 border-b border-line-soft pb-2 text-sm text-muted">Ажлын улирал</div>
                 <div className="pt-2 text-sm text-muted">
-                  1px <Code>border-line-soft</Code> · InfoRows, StepList
+                  1px <Code>border-line-soft</Code> · InfoRows, ChatPreview
                 </div>
+              </div>
+              <div className="rounded-[20px] border border-line bg-white p-5">
+                <p className="font-semibold text-ink">Холбох шугам</p>
+                <div className="mt-3 max-w-[260px]">
+                  <StepList steps={production.steps.slice(0, 3)} />
+                </div>
+                <p className="pt-2 text-sm text-muted">
+                  1px <Code>bg-lavender</Code> / <Code>bg-line</Code> · зөвхөн дараалалд: StepList (uniform connectedness)
+                </p>
+              </div>
+              <div className="rounded-[20px] border border-dashed border-lavender-muted bg-cream p-5">
+                <p className="font-semibold text-ink">Тасархай хүрээ</p>
+                <p className="pt-1 text-sm text-muted">
+                  1px dashed <Code>border-lavender-muted</Code> · <Code>FeatureCard variant=&quot;action&quot;</Code>: бүтээгдэхүүн биш, үйлдэл хүссэн карт
+                </p>
               </div>
               <div className="rounded-[20px] bg-contact-gradient p-5">
                 <div className="rounded-2xl border border-white/12 bg-white/7 p-4">
@@ -308,8 +406,18 @@ export default function StyleguidePage() {
                   Үнийн санал авах
                 </span>
                 <p className="text-sm text-muted">
-                  2px <Code>outline-brand-blue</Code>, offset 2px · <Code>:focus-visible</Code>. Tab дарж шалгаарай.
+                  Цайвар дэвсгэр: 2px <Code>outline-brand-blue</Code>, offset 2px · <Code>:focus-visible</Code>. Товч, carousel цэг, footer
+                  холбоос. Tab дарж шалгаарай.
                 </p>
+                <div className="mt-1 rounded-2xl bg-night-gradient p-4">
+                  <span className="inline-block rounded-sm text-[15px] font-medium text-white outline-2 outline-offset-4 outline-white">
+                    Бидний тухай
+                  </span>
+                  <p className="pt-3 text-sm text-lavender">
+                    Бараан дэвсгэр, зураг: <Code>outline-white</Code>. Navbar холбоос, газрын зургийн pin, утасны карт. Hero хаалга
+                    дотогшоо <Code>-outline-offset-8</Code>.
+                  </p>
+                </div>
               </div>
             </div>
           </SgSection>
@@ -335,6 +443,31 @@ export default function StyleguidePage() {
                 <p className="font-mono text-[11px] text-muted">0 12px 30px brand 12% · утасны цэс</p>
               </div>
             </div>
+            <SgSub title="Зураг дээрх бүрхүүл" description="Hero-ийн хоёр тал. Аль нэг дээр hover хийж үзээрэй: нөгөө нь бүдгэрнэ.">
+              <div className="group/split flex h-72 overflow-hidden rounded-[20px]">
+                {[
+                  { bg: "bg-night-gradient", label: "Баяжмал худалдан авах", image: null },
+                  { bg: "bg-brand-gradient", label: "Хүдэр нийлүүлэх", image: "/images/hero-supply.jpg" },
+                ].map((d) => (
+                  <div
+                    key={d.label}
+                    className={`group/door relative flex flex-1 items-end p-5 transition-[flex-grow,filter] duration-700 ease-out hover:grow-[1.3] group-hover/split:not-hover:brightness-[0.6] ${d.bg}`}
+                  >
+                    {d.image && <Image src={d.image} alt="" fill sizes="50vw" className="object-cover object-[50%_65%]" />}
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/5 to-black/55" />
+                    <p className="relative font-display text-xl font-extrabold text-white">{d.label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 rounded-[20px] border border-line bg-white px-5">
+                {overlays.map((o) => (
+                  <PropRow key={o.name} name={`${o.name} · ${o.value}`}>
+                    {o.use}
+                  </PropRow>
+                ))}
+              </div>
+            </SgSub>
+
             <SgSub title="Бүрхүүл">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="relative h-32 overflow-hidden rounded-[20px] bg-[url('/images/crystal.svg')] bg-contain bg-center bg-no-repeat bg-white">
@@ -370,7 +503,9 @@ export default function StyleguidePage() {
             <SgSub title="Зураглал" code="public/images/crystal.svg">
               <div className="flex items-center gap-6 rounded-[20px] border border-line bg-white p-6">
                 <Image src="/images/crystal.svg" alt="" width={100} height={120} />
-                <p className="text-sm text-muted">Hero-ийн жоншны болор. 300×360 SVG, өнгийг нь өөрчлөхгүй.</p>
+                <p className="text-sm text-muted">
+                  Hero-ийн голд, 2 хаалганы заагт. 300×360 SVG, өнгийг нь өөрчлөхгүй (opacity, filter хэрэглэхгүй). Зөвхөн нэг удаа гарна.
+                </p>
               </div>
             </SgSub>
           </SgSection>
@@ -413,31 +548,39 @@ export default function StyleguidePage() {
               </div>
             </SgDemo>
 
-            <SgDemo name="SectionHeader" file="components/ui/SectionHeader.tsx" note="Tag + гарчиг зүүн талд, тайлбар баруун талд (lg-ээс доош доороо).">
+            <SgDemo name="SectionHeader" file="components/ui/SectionHeader.tsx" note="Tag → гарчиг → тайлбар дээрээс доош ойрхон (Proximity). Өргөн дэлгэцэд тайлбар гарчгаасаа холдохгүй.">
               <SectionHeader tag="ҮЙЛДВЭРЛЭЛ" title="Хүдрээс баяжмал хүртэл" description={production.description} />
             </SgDemo>
 
             <SgDemo
               name="FeatureCard"
               file="components/cards/FeatureCard.tsx"
-              note={<>Preview хэсэг нь <Code>preview</Code> prop-оор ямар ч агуулга авна. <Code>previewTone=&quot;dark&quot;</Code> онцлох бүтээгдэхүүнд.</>}
+              note={
+                <>
+                  Preview хэсэг нь <Code>preview</Code> prop-оор ямар ч агуулга авна. Онцлох бүтээгдэхүүнд <Code>previewTone=&quot;dark&quot;</Code> +{" "}
+                  <Code>badge</Code> + <Code>actionVariant=&quot;primary&quot;</Code>. Үйлдэл хүссэн карт (хүсэлт г.м.) <Code>variant=&quot;action&quot;</Code> — тасархай хүрээ.
+                  StepList <Code>highlight</Code>, InfoRows мөрийн <Code>highlight</Code> нь нэг гол зүйлийг онцолно.
+                </>
+              }
             >
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 <FeatureCard
                   title="Флотацийн технологи"
-                  description="Хоёр шатны бутлалт, нунтаглалт, үндсэн ба 6 шатны цэвэрлэгээний флотаци."
+                  description="StepList · highlight={3}"
                   action={{ label: "Дэлгэрэнгүй", href: "#components" }}
                   preview={
                     <PreviewPanel label="StepList">
-                      <StepList steps={production.steps} />
+                      <StepList steps={production.steps} highlight={production.stepsHighlight} highlightLabel="ГОЛ ШАТ" />
                     </PreviewPanel>
                   }
                 />
                 <FeatureCard
                   title="ФФ-97 баяжмал"
-                  description={'previewTone="dark" · StatProgress + InfoRows'}
+                  description={'previewTone="dark" · badge · actionVariant="primary"'}
                   action={{ label: "Үнийн санал", href: "#components" }}
                   previewTone="dark"
+                  badge="Онцлох"
+                  actionVariant="primary"
                   preview={
                     <PreviewPanel label="StatProgress">
                       <StatProgress value="≥ 97%" unit="CaF₂" percent={97} />
@@ -448,14 +591,49 @@ export default function StyleguidePage() {
                   }
                 />
                 <FeatureCard
+                  variant="action"
                   title="Байршил ба тээвэр"
-                  description="InfoRows · spaced"
+                  description={'variant="action" · InfoRows highlight'}
                   action={{ label: "Газрын зураг", href: "#components" }}
                   preview={
                     <PreviewPanel label="InfoRows">
                       <InfoRows rows={production.locationRows.slice(0, 3)} spaced />
                     </PreviewPanel>
                   }
+                />
+              </div>
+            </SgDemo>
+
+            <SgDemo
+              name="FeatureCarousel"
+              file="components/cards/FeatureCarousel.tsx"
+              note={<>Нэг картанд хэд хэдэн preview ээлжлэн харуулна. 6 секунд тутамд солигдох ба hover/focus үед зогсоно. Идэвхтэй цэг таймер шиг дүүрнэ. <Code>StatProgress animateIn</Code> слайд нээгдэхэд дүүрнэ.</>}
+            >
+              <div className="max-w-[560px]">
+                <FeatureCarousel
+                  label="Жишээ"
+                  slides={[
+                    {
+                      title: "Флотацийн технологи",
+                      description: "StepList",
+                      action: { label: "Дэлгэрэнгүй", href: "#components" },
+                      preview: (
+                        <PreviewPanel label="StepList">
+                          <StepList steps={production.steps} />
+                        </PreviewPanel>
+                      ),
+                    },
+                    {
+                      title: "Байршил ба тээвэр",
+                      description: "InfoRows · spaced",
+                      action: { label: "Газрын зураг", href: "#components" },
+                      preview: (
+                        <PreviewPanel label="InfoRows">
+                          <InfoRows rows={production.locationRows} spaced />
+                        </PreviewPanel>
+                      ),
+                    },
+                  ]}
                 />
               </div>
             </SgDemo>
@@ -485,13 +663,13 @@ export default function StyleguidePage() {
               </div>
             </SgDemo>
 
-            <SgDemo name="ChatPreview" file="components/cards/ChatPreview.tsx" note="Static зураглал, оролт нь ажиллахгүй.">
+            <SgDemo name="ChatPreview" file="components/cards/ChatPreview.tsx · ChatReveal.tsx" note="Static зураглал, оролт нь ажиллахгүй. Дэлгэцэнд орохоор мессежүүд дараалан гарч ирнэ.">
               <div className="max-w-[560px]">
                 <ChatPreview />
               </div>
             </SgDemo>
 
-            <SgDemo name="ContactInfoCard" file="components/cards/ContactInfoCard.tsx" dark note={<><Code>href</Code> өгвөл утга нь холбоос болно.</>}>
+            <SgDemo name="ContactInfoCard" file="components/cards/ContactInfoCard.tsx" dark note={<><Code>href</Code> өгвөл утга нь холбоос болно. <Code>primary</Code> + <Code>hint</Code> — гол холбоо барих суваг: тод карт, том утга, бүтэн карт холбоос.</>}>
               <div className="flex max-w-[480px] flex-col gap-3">
                 {contact.items.map((item) => (
                   <ContactInfoCard key={item.label} {...item} />
@@ -541,54 +719,73 @@ export default function StyleguidePage() {
                 <Heading level="h4" as="p">h4 · Tile</Heading>
               </div>
             </SgDemo>
+
+            <SgSub title="Layout компонент" description="Хуудас бүрт нэг удаа гардаг тул энд жишээгүй, тайлбар л байна. Доорх 11-р хэсэгт амьдаар нь харна.">
+              <div className="rounded-[20px] border border-line bg-white px-5">
+                <PropRow name="Navbar.tsx">
+                  Hero дээр тунгалаг (<Code>overlay</Code>), бүтэн өргөн. Лого, 5 холбоос, хэл, «Үнийн санал авах». xl-ээс (1280px) доош{" "}
+                  <Code>{"<details>"}</Code> цэс.
+                </PropRow>
+                <PropRow name="Container.tsx">
+                  <Code>pageGutter</Code>: header болон бүх хэсэг ижил ирмэгтэй (24 / 40px, ≤ 2200px).
+                </PropRow>
+                <PropRow name="Footer.tsx">2 түвшин: лого + tagline, цэс, утас; доор нь 13px зохиогчийн эрх.</PropRow>
+                <PropRow name="QuoteRequestDialog.tsx">
+                  <Code>#request</Code> холбоосоор нээгдэх form → <Code>POST /api/requests</Code>.
+                </PropRow>
+              </div>
+            </SgSub>
           </SgSection>
 
           {/* 11 */}
           <SgSection id="sections" num={11} title="Хэсгүүд">
             <p className="max-w-[680px] text-[15px] leading-[1.6] text-muted">
-              Нүүр хуудас <Code>app/page.tsx</Code> нь эдгээр хэсгийг дарааллаар нь угсардаг. Текст нь <Code>lib/content.ts</Code>-д,
-              бүтээгдэхүүн нь database-д хадгалагдана.
+              Нүүр хуудасны хэсгүүд энд бодит компонентоороо, бодит өгөгдлөөрөө харагдана. <Code>app/page.tsx</Code> тэдгээрийг
+              дарааллаар угсардаг; текст нь <Code>lib/content.ts</Code>-д, бүтээгдэхүүн нь database-д.
             </p>
-            <ol className="grid gap-3 md:grid-cols-2">
-              {pageSections.map((s, i) => (
-                <li key={s.name}>
-                  <a href={s.href} className="flex h-full gap-4 rounded-[20px] border border-line bg-white p-5 transition hover:border-brand/30">
-                    <span className="font-mono text-xs text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
-                    <span className="flex flex-col">
-                      <span className="font-semibold text-ink">{s.name} ↗</span>
-                      <code className="pt-0.5 font-mono text-[11px] text-brand">{s.file}</code>
-                      <span className="pt-1.5 text-sm text-muted">{s.note}</span>
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ol>
+
+            {/* Hero is full-screen by design, so it is shown through a framed window onto the real page. */}
+            <LiveSection
+              name={`${pageSections[0].name} · ${pageSections[1].name}`}
+              file={`${pageSections[0].file} · ${pageSections[1].file}`}
+              note={pageSections[1].note}
+              href="/"
+            >
+              <iframe src="/" title="Нүүр хуудас · Navbar ба hero" loading="lazy" className="block h-[560px] w-full" />
+            </LiveSection>
+            {[
+              { i: 2, el: <AboutSection /> },
+              { i: 3, el: <ProductionSection /> },
+              { i: 4, el: <ProductsSection products={products} /> },
+              { i: 5, el: <EnvironmentSection /> },
+              { i: 6, el: <FaqSection /> },
+              { i: 7, el: <ContactSection /> },
+              { i: 9, el: <Footer /> },
+            ].map(({ i, el }) => (
+              <LiveSection key={pageSections[i].name} name={pageSections[i].name} file={pageSections[i].file} note={pageSections[i].note} href={pageSections[i].href}>
+                {el}
+              </LiveSection>
+            ))}
           </SgSection>
 
           {/* 12 */}
           <SgSection id="motion" num={12} title="Хөдөлгөөн">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-[20px] border border-line bg-white p-5">
-                <p className="font-semibold text-ink">Hover</p>
-                <p className="pt-1 text-sm text-muted">
-                  <Code>transition</Code> 150ms ease. Primary товч гэрэлтэнэ (<Code>brightness-110</Code>), бусад нь хүрээ/өнгө солино.
-                </p>
-                <div className="pt-4">
-                  <Button size="sm">Hover хийж үзээрэй</Button>
+            <p className="max-w-[680px] text-[15px] leading-[1.6] text-muted">
+              Хөдөлгөөн зөвхөн өөрчлөгдөж буй мэдээлэлд (progress, carousel, chat) болон hover-т. Чимэглэлийн хөдөлгөөн хэрэглэхгүй.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {motions.map((m) => (
+                <div key={m.name} className="rounded-[20px] border border-line bg-white p-5">
+                  <p className="flex flex-wrap items-baseline gap-x-3">
+                    <span className="font-semibold text-ink">{m.name}</span>
+                    <code className="font-mono text-xs text-brand">{m.value}</code>
+                  </p>
+                  <p className="pt-1.5 text-sm text-muted">{m.use}</p>
                 </div>
-              </div>
-              <div className="rounded-[20px] border border-line bg-white p-5">
-                <p className="font-semibold text-ink">Smooth scroll</p>
-                <p className="pt-1 text-sm text-muted">
-                  Anchor холбоос (<Code>#production</Code>) зөөлөн гүйлгэнэ. Хэсэг бүр <Code>scroll-mt-6</Code>-тай.
-                </p>
-              </div>
-              <div className="rounded-[20px] border border-line bg-white p-5">
-                <p className="font-semibold text-ink">Reduced motion</p>
-                <p className="pt-1 text-sm text-muted">
-                  <Code>prefers-reduced-motion</Code> үед гүйлгэлт, transition бүгд зогсоно (globals.css).
-                </p>
-              </div>
+              ))}
+            </div>
+            <div>
+              <Button size="sm">Hover хийж үзээрэй</Button>
             </div>
           </SgSection>
         </main>

@@ -3,9 +3,10 @@ import { company } from "@/lib/content";
 
 type Size = "lg" | "md";
 
-const sizes: Record<Size, { w: number; h: number; text: string }> = {
-  lg: { w: 46, h: 34, text: "text-xl leading-[30px]" },
-  md: { w: 36, h: 27, text: "text-base leading-6" },
+// Mark is the vector triangle (public/images/logo-mark.svg, 120×104); wordmark scales with it.
+const sizes: Record<Size, { w: number; h: number; img: string; text: string; gap: string }> = {
+  lg: { w: 74, h: 64, img: "h-12 w-auto sm:h-16", text: "text-lg leading-[27px] sm:text-[22px] sm:leading-[30px]", gap: "gap-3" },
+  md: { w: 51, h: 44, img: "h-10 w-auto", text: "text-[15px] leading-[22px]", gap: "gap-2.5" },
 };
 
 /**
@@ -16,13 +17,13 @@ export function Logo({ size = "lg", muted = false, tone = "light" }: { size?: Si
   const s = sizes[size];
   const dark = tone === "dark";
   return (
-    <span className="flex items-center gap-2.5">
+    <span className={`flex items-center ${s.gap}`}>
       <Image
-        src="/images/logo.png"
+        src="/images/logo-mark.svg"
         alt=""
         width={s.w}
         height={s.h}
-        className={`object-cover ${dark ? "rounded-md bg-white p-0.5" : ""}`}
+        className={`${s.img} drop-shadow-[0_4px_14px_rgba(106,79,209,0.35)]`}
         priority={size === "lg"}
       />
       <span className={dark ? "text-white" : muted ? "text-muted" : "text-ink"}>

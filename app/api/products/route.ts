@@ -5,6 +5,6 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** GET /api/products — list of concentrate products from the database. */
-export function GET() {
-  return NextResponse.json({ products: getProducts() });
+export async function GET() {
+  return NextResponse.json({ products: await getProducts() });
 }

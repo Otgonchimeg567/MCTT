@@ -19,15 +19,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Мэдээллээ шалгана уу.", fields: result.errors }, { status: 400 });
   }
 
-  if (result.data.productId && !productExists(result.data.productId)) {
-    return NextResponse.json(
-      { error: "Мэдээллээ шалгана уу.", fields: { productId: "Ийм бүтээгдэхүүн олдсонгүй." } },
-      { status: 400 },
-    );
-  }
-
   try {
-    const id = createQuoteRequest(result.data);
+    if (result.data.productId && !(await productExists(result.data.productId))) {
+      return NextResponse.json(
+        { error: "Мэдээллээ шалгана уу.", fields: { productId: "Ийм бүтээгдэхүүн олдсонгүй." } },
+        { status: 400 },
+      );
+    }
+
+    const id = await createQuoteRequest(result.data);
     return NextResponse.json({ id }, { status: 201 });
   } catch (err) {
     console.error("Failed to save quote request", err);

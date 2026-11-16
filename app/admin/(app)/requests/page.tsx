@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
 import { listQuoteRequests } from "@/lib/server/requests";
 import { getProducts } from "@/lib/server/products";
-import { Container } from "@/components/layout/Container";
+import { requireMe } from "@/lib/auth";
+import { PageHeader } from "@/components/admin/ui";
 
-export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Хүсэлтүүд — MCTT админ", robots: { index: false } };
+export const metadata: Metadata = { title: "Үнийн хүсэлт — MCTT", robots: { index: false } };
 
 const fmt = new Intl.DateTimeFormat("mn-MN", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Ulaanbaatar" });
 
-export default function AdminRequestsPage() {
-  const requests = listQuoteRequests();
-  const productNames = new Map(getProducts().map((p) => [p.id, p.grade]));
+/** Website quote requests. Read with the secret key, so the admin check here is what protects them. */
+export default async function AdminRequestsPage() {
+  await requireMe(["admin"]);
+  const [requests, products] = await Promise.all([listQuoteRequests(), getProducts()]);
+  const productNames = new Map(products.map((p) => [p.id, p.grade]));
 
   return (
-    <Container className="py-12">
-      <h1 className="font-display text-3xl font-extrabold text-ink">Ирсэн хүсэлтүүд</h1>
-      <p className="pt-2 text-muted">Нийт {requests.length} хүсэлт</p>
+    <>
+      <PageHeader title="Үнийн хүсэлт" description={`Вэб сайтаас ирсэн нийт ${requests.length} хүсэлт`} />
 
       {requests.length === 0 ? (
         <p className="mt-8 rounded-[20px] border border-line bg-white p-8 text-center text-muted">Одоогоор хүсэлт ирээгүй байна.</p>
@@ -35,7 +36,7 @@ export default function AdminRequestsPage() {
               {requests.map((r) => (
                 <tr key={r.id} className="border-b border-line-soft align-top last:border-b-0">
                   <td className="px-4 py-3 text-muted">{r.id}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">{fmt.format(new Date(r.createdAt.replace(" ", "T") + "Z"))}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{fmt.format(new Date(r.createdAt))}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-bold ${
@@ -66,6 +67,6 @@ export default function AdminRequestsPage() {
           </table>
         </div>
       )}
-    </Container>
+    </>
   );
 }

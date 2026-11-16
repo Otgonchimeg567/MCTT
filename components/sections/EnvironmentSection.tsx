@@ -6,9 +6,10 @@ import { EnvTile } from "@/components/cards/EnvTile";
 
 export function EnvironmentSection() {
   return (
-    <section id="environment" className="scroll-mt-6 border-y border-line bg-white py-16 sm:py-24">
+    <section id="environment" className="scroll-mt-6 border-t border-line py-16 sm:py-24">
       <Container>
         <SectionHeader
+          index={4}
           tag={environment.tag}
           tagTone="green"
           title={environment.title}
@@ -16,8 +17,10 @@ export function EnvironmentSection() {
         />
 
         <div className="grid gap-6 pt-10 lg:grid-cols-[616fr_560fr]">
-          <BigStatCard {...environment.highlight} />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div data-reveal>
+            <BigStatCard {...environment.highlight} />
+          </div>
+          <div data-reveal-stagger className="grid gap-4 sm:grid-cols-2">
             {environment.tiles.map((tile) => (
               <EnvTile key={tile.title} {...tile} />
             ))}

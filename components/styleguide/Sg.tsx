@@ -49,6 +49,28 @@ export function SgDemo({ name, file, children, note, dark = false }: { name: str
   );
 }
 
+/** A real page section rendered inside a framed window, with its file and a link to it on the live page. */
+export function LiveSection({ name, file, note, href, children }: { name: string; file: string; note?: ReactNode; href: string; children: ReactNode }) {
+  return (
+    <div>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h3 className="text-lg font-semibold text-ink">{name}</h3>
+          <code className="font-mono text-xs text-muted">{file}</code>
+        </div>
+        <a href={href} className="text-sm font-semibold text-brand hover:underline">
+          Сайт дээр харах ↗
+        </a>
+      </div>
+      {note && <p className="max-w-[680px] pt-1.5 text-sm leading-[1.6] text-muted">{note}</p>}
+      {/* Sections carry their own outer margin on the page; drop it inside the frame. */}
+      <div className="mt-4 overflow-hidden rounded-[24px] border border-line bg-cream shadow-[0_24px_48px_-32px_rgba(20,20,43,0.3)] [&>section]:mt-0">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function PropRow({ name, children }: { name: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1 border-b border-line-soft py-2.5 text-sm last:border-b-0 sm:flex-row sm:gap-4">
