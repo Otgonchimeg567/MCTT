@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { bomt, hero } from "@/lib/content";
 import { HeroFx } from "@/components/motion/HeroFx";
+import { Magnetic } from "@/components/motion/Magnetic";
 
 /**
  * Interactive hero. Layers, back to front:
@@ -110,29 +111,32 @@ export function SplitHero() {
               href={`/bomt/${latest.year}`}
               className="group/bomt flex items-center gap-3 text-white focus-visible:outline-none"
             >
-              <span
-                aria-hidden
-                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#2e9bd9] text-lg text-[#0a0a0a] shadow-[0_0_24px_-4px_rgba(46,155,217,0.7)] transition duration-500 ease-out group-hover/bomt:-rotate-45 group-hover/bomt:shadow-[0_0_32px_-2px_rgba(46,155,217,0.85)] group-focus-visible/bomt:-rotate-45 group-focus-visible/bomt:outline-2 group-focus-visible/bomt:outline-offset-4 group-focus-visible/bomt:outline-[#2e9bd9]"
-              >
-                →
-              </span>
-              <span className="flex flex-col">
+              <Magnetic strength={0.35} reach={36} className="shrink-0">
+                <span
+                  aria-hidden
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#2e9bd9] text-lg text-[#0a0a0a] shadow-[0_0_24px_-4px_rgba(46,155,217,0.7)] transition duration-500 ease-out group-hover/bomt:-rotate-45 group-hover/bomt:scale-110 group-hover/bomt:shadow-[0_0_32px_-2px_rgba(46,155,217,0.85)] group-focus-visible/bomt:-rotate-45 group-focus-visible/bomt:outline-2 group-focus-visible/bomt:outline-offset-4 group-focus-visible/bomt:outline-[#2e9bd9]"
+                >
+                  →
+                </span>
+              </Magnetic>
+              <Magnetic strength={0.12} reach={24} className="flex flex-col">
                 <span className="font-display text-[17px] leading-tight font-extrabold sm:text-[19px]">
                   БОМТ {latest.year}{" "}
                   <span className="font-sans text-[14px] font-medium text-white/55 transition group-hover/bomt:text-white">
                     {latest.kind.toLowerCase()}
                   </span>
                 </span>
-              </span>
+              </Magnetic>
             </a>
             {older.map((r) => (
-              <a
-                key={r.year}
-                href={`/bomt/${r.year}`}
-                className="ml-14 w-fit font-mono text-[11px] tracking-[0.08em] text-white/40 underline-offset-4 transition hover:text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2e9bd9]"
-              >
-                {r.year} {r.kind.toLowerCase()} →
-              </a>
+              <Magnetic key={r.year} strength={0.2} reach={20} className="ml-14 w-fit">
+                <a
+                  href={`/bomt/${r.year}`}
+                  className="font-mono text-[11px] tracking-[0.08em] text-white/40 underline-offset-4 transition hover:text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2e9bd9]"
+                >
+                  {r.year} {r.kind.toLowerCase()} →
+                </a>
+              </Magnetic>
             ))}
           </div>
         );
