@@ -44,6 +44,15 @@ export async function createEmployee(_: ActionState, fd: FormData): Promise<Acti
 
   const { error: upd } = await admin.from("profiles").update(profile).eq("id", data.user.id);
   if (upd) return fail(dbError(upd));
+  // Every login also gets a personal file (HR records), linked to it.
+  await admin.from("employees").insert({
+    full_name: profile.full_name,
+    phone: profile.phone,
+    position: profile.position,
+    department_id: profile.department_id,
+    contact_email: email,
+    profile_id: data.user.id,
+  });
 
   revalidatePath("/admin/employees");
   return ok(`${profile.full_name} нэмэгдлээ. Түр нууц үгийг ажилтанд найдвартай замаар хүргээрэй.`);

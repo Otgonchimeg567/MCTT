@@ -5,6 +5,8 @@ import { getDepartments, getTeam } from "@/lib/work/queries";
 import { addDays, fmtDate, fmtHours, isISODate, todayISO } from "@/lib/work/format";
 import { roleLabels, taskStatusLabels, taskStatusTone, type TaskStatus } from "@/lib/work/labels";
 import { AField, AInput, ASelect, Badge, Card, EmptyState, FilterBar, Notice, PageHeader, Progress, StatCard, Table, Td, Th, btn } from "@/components/admin/ui";
+import { daysUntil, getExpiringDocuments } from "@/lib/hr/queries";
+import { EXPIRY_WARN_DAYS } from "@/lib/hr/labels";
 
 type SP = Promise<{ from?: string; to?: string; dept?: string; emp?: string; denied?: string }>;
 
@@ -18,7 +20,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: SP
   const from = sp.from && isISODate(sp.from) ? sp.from : addDays(today, -6);
   const to = sp.to && isISODate(sp.to) ? sp.to : today;
 
-  const [team, departments] = await Promise.all([getTeam(me), getDepartments()]);
+  const [team, departments, expiring] = await Promise.all([
+    getTeam(me),
+    getDepartments(),
+    // HR tables may not exist yet (migration not run) — the dashboard must still load.
+    me.role === "admin" ? getExpiringDocuments(8).catch(() => []) : Promise.resolve([]),
+  ]);
   const scoped = team.filter((p) => (!sp.dept || p.departmentId === sp.dept) && (!sp.emp || p.id === sp.emp));
   const ids = scoped.map((p) => p.id);
 
@@ -198,6 +205,29 @@ export default async function DashboardPage({ searchParams }: { searchParams: SP
           )}
         </Card>
       </div>
+
+      {expiring.length > 0 && (
+        <div className="pt-6">
+          <Card title={`Дуусах гэрээ, гэрчилгээ (${EXPIRY_WARN_DAYS} хоногт)`} actions={<Link href="/admin/employees?alert=1" className={btn.link}>Бүгд</Link>}>
+            <ul className="flex flex-col divide-y divide-line-soft">
+              {expiring.map((d) => {
+                const days = daysUntil(d.validUntil!);
+                return (
+                  <li key={d.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
+                    <Link href={`/admin/employees/${d.employeeId}?tab=docs`} className="min-w-0 text-sm hover:text-brand">
+                      <span className="font-semibold text-ink">{d.employeeName}</span> <span className="text-muted">— {d.title}</span>
+                    </Link>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="text-xs text-muted">{fmtDate(d.validUntil)}</span>
+                      <Badge tone={days < 0 ? "red" : "amber"}>{days < 0 ? "Дууссан" : `${days} хоног`}</Badge>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
+        </div>
+      )}
 
       {perDept.length > 0 && (
         <div className="pt-6">

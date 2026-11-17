@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-admin.mjs"
+    "bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-admin.mjs",
+    "seed-hr-demo": "node --env-file=.env.local scripts/seed-hr-demo.mjs",
+    "seed-hr-demo:clean": "node --env-file=.env.local scripts/seed-hr-demo.mjs --clean"
   },
   "dependencies": {
     "@fontsource-variable/golos-text": "^5.3.0",

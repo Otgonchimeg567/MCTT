@@ -50,6 +50,13 @@ const icons: Record<string, ReactNode> = {
       <circle cx="12" cy="12" r="3" />
     </>
   ),
+  idcard: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="2" />
+      <path d="M15 8h2M15 12h2M7 16h10" />
+    </>
+  ),
   inbox: (
     <>
       <path d="M22 12h-6l-2 3h-4l-2-3H2" />
@@ -66,6 +73,7 @@ const items: Item[] = [
   { href: "/admin/work-logs", label: "Ажлын бүртгэл", icon: "log" },
   { href: "/admin/tasks", label: "Даалгавар", icon: "tasks" },
   { href: "/admin/files", label: "Файл / хавтас", icon: "files" },
+  { href: "/admin/my-file", label: "Миний хувийн хэрэг", icon: "idcard", roles: ["manager", "employee"] },
   { href: "/admin/reports", label: "Тайлан", icon: "reports" },
   { href: "/admin/requests", label: "Үнийн хүсэлт", icon: "inbox", roles: ["admin"] },
   { href: "/admin/settings", label: "Тохиргоо", icon: "settings" },
